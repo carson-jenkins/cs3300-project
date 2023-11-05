@@ -1,0 +1,11 @@
+{% extends "golf_app/base_template.html" %}
+{% block content %}
+  <h2>Player Details</h2>
+  <p>Player: {{ player.user.get_full_name }}</p>
+  <p>Handicap: {{ player.handicap }}</p>
+  <ul>
+    {% for score in player.score_set.all %}
+      <li>{{ score.game }}: {{ score.strokes }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

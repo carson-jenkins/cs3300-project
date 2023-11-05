@@ -1,0 +1,10 @@
+<!-- game_form.html -->
+{% extends "golf_app/base_template.html" %}
+{% block content %}
+<h2>Create New Game</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Game</button>
+</form>
+{% endblock %}

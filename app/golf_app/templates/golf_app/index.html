@@ -3,6 +3,31 @@
 
 <!-- Replace block content in base_template.html -->
 {% block content %}
-    <h1>Golf scores</h1>
-    <h2>More to come</h2>
+    <div class="container mt-4">
+        <h1>Welcome to the Golf Scores App</h1>
+        <h2>Keep track of your golf games and scores.</h2>
+        
+        <div class="row my-4">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Games</h5>
+                        <p class="card-text">View a list of past games or add new games to track scores.</p>
+                        <a href="{% url 'game_list' %}" class="btn btn-primary">View Games</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Players</h5>
+                        <p class="card-text">Check out player statistics or add new players to your games.</p>
+                        <a href="{% url 'player_list' %}" class="btn btn-primary">View Players</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
+

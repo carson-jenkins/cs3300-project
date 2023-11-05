@@ -1,0 +1,15 @@
+{% extends "golf_app/base_template.html" %}
+{% block content %}
+<h2>Create New Game</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ score_forms.management_form }}
+    {% for score_form in score_forms %}
+        <div class="hole-score-form">
+            {{ score_form.as_p }}
+        </div>
+    {% endfor %}
+    <button type="submit">Save Game</button>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'golf_app/base_template.html' %}
+
+{% block content %}
+  <h2>Player List</h2>
+  <ul>
+    {% for player in players %}
+      <li>{{ player.name }} - {{ player.handicap|default:"N/A" }}
+        <a href="{% url 'player_edit' player.pk %}">Edit</a>
+        <a href="{% url 'player_delete' player.pk %}">Delete</a>
+      </li>
+    {% empty %}
+      <li>No players have been created.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'player_add' %}">Create Player</a>
+{% endblock %}
