@@ -1,9 +1,36 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import generic
 from .models import *
-from .forms import GameForm, PlayerForm
-from django.urls import reverse_lazy
+from .forms import *
 import random
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+from django.contrib.auth.decorators import login_required
+from django.forms import formset_factory
+from django.http import HttpResponseRedirect
+from django.views.generic.edit import DeleteView
+
+class UserLoginView(LoginView):
+    template_name = 'golf_app/login.html'
+    authentication_form = AuthenticationForm
+    next_page = '/'  # Redirect to the homepage after login
+
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy('index')
+
+class UserRegistrationView(CreateView):
+    template_name = 'golf_app/registration.html'
+    form_class = RegistrationForm
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        # Save the form and create a new user
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        return super().form_valid(form)
 
 def index(request):
     sayings = [
@@ -27,76 +54,106 @@ def index(request):
     ]
     chosen_saying = random.choice(sayings)
 
-    # Pass the chosen saying to the template context
-    return render(request, 'golf_app/index.html', {'chosen_saying': chosen_saying})
+    game_list = Game.objects.all().order_by('-date')[:5]
+    recent_games = game_list
 
-# Player Views
-class PlayerListView(ListView):
+    top_players = Player.objects.all().order_by('handicap')[:5]
+
+    context = {
+        'recent_games': recent_games,
+        'top_players': top_players,
+        'chosen_saying': chosen_saying,
+    }
+    return render(request, 'golf_app/index.html', context)
+
+# Player views
+class PlayerListView(generic.ListView):
     model = Player
-    template_name = 'golf_app/player_list.html'
-    context_object_name = 'players'
+    context_object_name = 'player_list'
+    template_name = 'player_list.html'
 
-class PlayerDetailView(DetailView):
+class PlayerDetailView(generic.DetailView):
     model = Player
     template_name = 'golf_app/player_detail.html'
 
-
-class PlayerCreateView(CreateView):
-    model = Player
-    form_class = PlayerForm
-    template_name = 'golf_app/player_form.html'
-    success_url = reverse_lazy('player_list')
-
-class PlayerUpdateView(UpdateView):
-    model = Player
-    form_class = PlayerForm
-    template_name = 'golf_app/player_form.html'
-    success_url = reverse_lazy('player_list')
-
 class PlayerDeleteView(DeleteView):
     model = Player
-    template_name = 'golf_app/player_confirm_delete.html'
-    success_url = reverse_lazy('player_list')
+    success_url = reverse_lazy('player-list')
 
-# Game Views
-class GameListView(ListView):
+@login_required  # Restrict access to logged-in users
+def create_update_player(request, pk=None):
+    player = get_object_or_404(Player, pk=pk) if pk else None
+    if request.method == 'POST':
+        form = PlayerForm(request.POST, instance=player)
+        if form.is_valid():
+            form.save()
+            return redirect('player-detail', pk=form.instance.pk)
+    else:
+        form = PlayerForm(instance=player)
+    return render(request, 'golf_app/player_form.html', {'form': form})
+
+# Game views
+class GameListView(generic.ListView):
     model = Game
-    template_name = 'golf_app/game_list.html'
-    context_object_name = 'games'
+    context_object_name = 'game_list'
+    template_name = 'game_list.html'
 
-class GameDetailView(DetailView):
+class GameDetailView(generic.DetailView):
     model = Game
     template_name = 'golf_app/game_detail.html'
 
-# This view is for creating a new game
-class GameCreateView(CreateView):
-    model = Game
-    form_class = GameForm
-    template_name = 'golf_app/new_game.html'
-    success_url = reverse_lazy('game_list')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        game = self.get_object()  # Get the game object for the current view
+        PlayerScoreFormSet = formset_factory(PlayerScoreForm, extra=0)
 
-    def form_valid(self, form):
-        game = form.save(commit=False)
-        game.save()
-        # Assuming you redirect to the score entry page for the first hole after creating a game
-        return redirect('hole_score_entry', game_id=game.pk, hole_number=1)
+        formset_data = []
+        for player_score in PlayerGameScore.objects.filter(game=game):
+            form_data = {f'score_{i + 1}': player_score.get_score(i + 1) for i in range(18)}
+            formset_data.append(form_data)
 
-# This function-based view is for entering scores for each hole
-def hole_score_entry(request, game_id, hole_number):
-    game = get_object_or_404(Game, pk=game_id)
-    ScoreFormSet = modelformset_factory(Score, form=ScoreForm, formset=BaseScoreFormSet, extra=game.number_of_players)
-    if request.method == 'POST':
-        formset = ScoreFormSet(request.POST, request.FILES, queryset=Score.objects.none())
+        context['formset'] = PlayerScoreFormSet(initial=formset_data)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()  # Set the object for the current view
+        game = self.object
+        PlayerScoreFormSet = formset_factory(PlayerScoreForm, extra=0)
+        formset = PlayerScoreFormSet(request.POST)
+
         if formset.is_valid():
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.game = game
-                instance.hole_number = hole_number
-                instance.save()
-            if hole_number < 18:
-                return redirect('hole_score_entry', game_id=game.pk, hole_number=hole_number+1)
-            else:
-                return redirect('game_detail', pk=game.pk)
+            player_scores = PlayerGameScore.objects.filter(game=game)
+            for form, player_score in zip(formset, player_scores):
+                scores = [form.cleaned_data[f'score_{i + 1}'] for i in range(18)]
+                player_score.scores = ','.join(scores)
+                player_score.save()
+
+            return redirect('game-detail', pk=game.pk)
+
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+class GameDeleteView(DeleteView):
+    model = Game
+    success_url = reverse_lazy('game-list')  # Redirect to the game list after deletion
+
+@login_required
+def create_update_game(request, pk=None):
+    game = get_object_or_404(Game, pk=pk) if pk else None
+
+    if request.method == 'POST':
+        form = GameForm(request.POST, instance=game)
+        if form.is_valid():
+            new_game = form.save()  # Save the game first
+
+            # Handle new player creation
+            new_player_name = form.cleaned_data.get('new_player_name')
+            if new_player_name:
+                player, created = Player.objects.get_or_create(name=new_player_name)
+                new_game.players.add(player)
+
+            # Redirect to the game detail page for score entry
+            return redirect('game-detail', pk=new_game.pk)
     else:
-        formset = ScoreFormSet(queryset=Score.objects.none())
-    return render(request, 'hole_score_form.html', {'formset': formset, 'game': game, 'hole_number': hole_number})
+        form = GameForm(instance=game)
+
+    return render(request, 'golf_app/game_form.html', {'form': form})

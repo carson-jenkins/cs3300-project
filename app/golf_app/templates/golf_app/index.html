@@ -1,33 +1,47 @@
-<!-- inherit from base.html-->
-{% extends "golf_app/base_template.html" %}
+{% extends 'golf_app/base_template.html' %}
 
-<!-- Replace block content in base_template.html -->
 {% block content %}
-    <div class="container mt-4">
-        <h1>Welcome to the Golf Scores App</h1>
-        <h2>Keep track of your golf games and scores.</h2>
+<div class="container mt-4">
+    <h1 class="mb-4">Welcome to the Golf App</h1>
+    <p class="lead">Track your golf games and improve your performance.</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Recent Games</h2>
+            <ul class="list-group">
+                {% for game in recent_games %}
+                    <li class="list-group-item">
+                        <a href="{% url 'game-detail' game.id %}">{{ game.course_name }} on {{ game.date }}</a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No recent games available.</li>
+                {% endfor %}
+            </ul>
+        </div>
         
-        <div class="row my-4">
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Games</h5>
-                        <p class="card-text">View a list of past games or add new games to track scores.</p>
-                        <a href="{% url 'game_list' %}" class="btn btn-primary">View Games</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Players</h5>
-                        <p class="card-text">Check out player statistics or add new players to your games.</p>
-                        <a href="{% url 'player_list' %}" class="btn btn-primary">View Players</a>
-                    </div>
-                </div>
-            </div>
+        <div class="col-md-6">
+            <h2>Top Players</h2>
+            <ul class="list-group">
+                {% for player in top_players %}
+                    <li class="list-group-item">
+                        <a href="{% url 'player-detail' player.id %}">{{ player.name }}</a>
+                        - Handicap: {{ player.handicap }}
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No top players available.</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'game-list' %}" class="btn btn-primary">View All Games</a>
+        <a href="{% url 'player-list' %}" class="btn btn-secondary">View All Players</a>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'new-player' %}" class="btn btn-success">Create New Player</a>
+            <a href="{% url 'new-game' %}" class="btn btn-success">Create New Game</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
-

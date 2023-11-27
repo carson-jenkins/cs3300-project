@@ -1,45 +1,60 @@
 from django import forms
-from .models import Player, Game
-from django.forms import modelformset_factory, ModelForm
-from django.shortcuts import get_object_or_404
+from .models import *
+from django.contrib.auth.forms import AuthenticationForm
+from django.forms import ModelMultipleChoiceField
 
-class PlayerForm(ModelForm):
+class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
-        fields = ['name', 'handicap']
-
+        fields = ['name', 'handicap', 'contact_email', 'bio']
 
 class GameForm(forms.ModelForm):
+    players = forms.ModelMultipleChoiceField(
+        queryset=Player.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     class Meta:
         model = Game
-        fields = ['date_played', 'course_name', 'players']
-        widgets = {
-            'date_played': forms.DateInput(attrs={'type': 'date'}),
-            'course_name': forms.TextInput(),
-            'players': forms.CheckboxSelectMultiple(),
-        }
+        fields = ['date', 'course_name', 'players']
 
-def hole_score_entry(request, game_id, hole_number):
-    game = get_object_or_404(Game, pk=game_id)
-    HoleFormSet = modelformset_factory(Score, fields=('par', 'strokes'), extra=game.players.count())
-    
-    if request.method == 'POST':
-        formset = HoleFormSet(request.POST)
-        if formset.is_valid():
-            # Save the scores and redirect to the next hole or finish the game
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.game = game
-                instance.hole.number = hole_number
-                instance.save()
-            if hole_number < 18:
-                return redirect('hole_score_entry', game_id=game.pk, hole_number=hole_number+1)
-            else:
-                # Redirect to game summary or wherever you wish to go after the last hole
-                return redirect('game_summary', game_id=game.pk)
-    else:
-        formset = HoleFormSet(queryset=Score.objects.none())
-    
-    return render(request, 'hole_score_form.html', {'formset': formset})
+    def save(self, commit=True):
+        game = super().save(commit=False)
+        if commit:
+            game.save()
+        new_player_name = self.cleaned_data.get('new_player_name')
+        if new_player_name:
+            player, created = Player.objects.get_or_create(name=new_player_name)
+            game.players.add(player)
+        self.save_m2m()
+        return game
 
-# Note: You'll need to create a 'hole_score_form.html' template for the formset.
+class PlayerGameScoreForm(forms.ModelForm):
+    scores = forms.CharField(widget=forms.Textarea)
+
+    class Meta:
+        model = PlayerGameScore
+        fields = ['player', 'game', 'scores']
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+
+class PlayerScoreForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(PlayerScoreForm, self).__init__(*args, **kwargs)
+        for i in range(1, 19):
+            self.fields[f'score_{i}'] = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': '2'}))
+
+
+class LoginForm(AuthenticationForm):  # Assuming LoginForm is a model-based form
+    class Meta:
+        model = CustomUser  # Use your custom user model
+        fields = ['username', 'password']  # Update with your desired fields
+
+class RegistrationForm(forms.ModelForm):  # Assuming RegistrationForm is a model-based form
+    class Meta:
+        model = CustomUser  # Use your custom user model
+        fields = ['username', 'password', 'email']  # Update with your desired fields

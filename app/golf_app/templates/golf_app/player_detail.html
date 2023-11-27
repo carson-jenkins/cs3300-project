@@ -1,11 +1,14 @@
-{% extends "golf_app/base_template.html" %}
+{% extends 'golf_app/base_template.html' %}
+
 {% block content %}
-  <h2>Player Details</h2>
-  <p>Player: {{ player.user.get_full_name }}</p>
-  <p>Handicap: {{ player.handicap }}</p>
-  <ul>
-    {% for score in player.score_set.all %}
-      <li>{{ score.game }}: {{ score.strokes }}</li>
-    {% endfor %}
-  </ul>
+<div class="container mt-4">
+    <h1 class="mb-4">Player Details</h1>
+    <ul class="list-group">
+        <li class="list-group-item"><strong>Name:</strong> {{ player.name }}</li>
+        <li class="list-group-item"><strong>Handicap:</strong> {{ player.handicap }}</li>
+        <li class="list-group-item"><strong>Contact Email:</strong> {{ player.contact_email }}</li>
+        <li class="list-group-item"><strong>Bio:</strong> {{ player.bio }}</li>
+    </ul>
+    <a href="{% url 'player-list' %}" class="btn btn-primary mt-3">Back to Player List</a>
+</div>
 {% endblock %}

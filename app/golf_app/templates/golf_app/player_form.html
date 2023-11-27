@@ -1,10 +1,12 @@
 {% extends 'golf_app/base_template.html' %}
 
 {% block content %}
-  <h2>Create/Edit Player</h2>
-  <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Save</button>
-  </form>
+<div class="container mt-4">
+    <h1 class="mb-4">{% if player.id %}Edit{% else %}New{% endif %} Player</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
 {% endblock %}

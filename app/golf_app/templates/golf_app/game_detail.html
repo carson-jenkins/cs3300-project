@@ -1,10 +1,33 @@
-{% extends "golf_app/base_template.html" %}
+{% extends 'golf_app/base_template.html' %}
+
 {% block content %}
-  <h2>Game Details</h2>
-  <p>Date Played: {{ game.date_played }}</p>
-  <ul>
-    {% for score in game.score_set.all %}
-      <li>{{ score.player }}: {{ score.strokes }}</li>
-    {% endfor %}
-  </ul>
+    <div class="container mt-4">
+        <h2 class="mb-3">Game Details</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="card-text"><strong>Course Name:</strong> {{ game.course_name }}</p>
+                <p class="card-text"><strong>Date:</strong> {{ game.date }}</p>
+            </div>
+        </div>
+
+        <h3 class="mb-3">Scores:</h3>
+        <form method="post" class="mb-3">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <table class="table table-striped">
+                <tbody>
+                    {% for form in formset %}
+                        <tr>
+                            <td>{{ form.player_name.value }}</td>
+                            {% for field in form %}
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success">Save Scores</button>
+        </form>        
+        <a href="{% url 'game-list' %}" class="btn btn-outline-secondary">Back to Game List</a>
+    </div>
 {% endblock %}
