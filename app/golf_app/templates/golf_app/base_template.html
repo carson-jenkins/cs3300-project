@@ -1,79 +1,89 @@
-{% load static %}
+{% load static %} <!-- Django template tag to load static files -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Golf Player Tracking</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {% load bootstrap5 %}
-    {% bootstrap_css %}
+    <title>Golf Player Tracking</title> <!-- Title of the webpage -->
+    <meta charset="utf-8" /> <!-- Character encoding for the HTML document -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- Responsive design meta tag -->
+    {% load bootstrap5 %} <!-- Load Bootstrap 5 for styling -->
+    {% bootstrap_css %} <!-- Include Bootstrap CSS -->
     <style>
+        /* Custom CSS styles */
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding-top: 20px;
+            font-family: 'Open Sans', sans-serif; /* Font family for the body */
+            background-color: #f4f4f4; /* Background color of the body */
+            color: #333; /* Text color */
+            padding-top: 20px; /* Top padding for the body */
         }
         .navbar {
-            background-color: #28a745; /* Green background color for the header */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #28a745; /* Background color for the navbar */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect for the navbar */
         }
+        /* Styling for navbar brand and links */
         .navbar-brand, .nav-link {
-            color: #fff; /* White text color for the header */
+            color: #fff; /* Text color */
         }
         .nav-link {
-            margin-right: 15px;
+            margin-right: 15px; /* Margin to the right for nav links */
         }
         .nav-link:hover {
-            color: #155724; /* Darker green on hover */
+            color: #155724; /* Color on hover for nav links */
         }
         .footer {
-            background-color: #28a745; /* Green background color for the footer */
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #28a745; /* Background color for the footer */
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect for the footer */
         }
         .container-fluid {
-            padding: 0 15px;
+            padding: 0 15px; /* Padding for the container */
         }
         .text-muted {
-            color: #6c757d!important;
+            color: #6c757d!important; /* Color for muted text */
         }
-
-        /* Add green accents */
         .accent-bg {
-            background-color: #28a745; /* Green background color */
+            background-color: #28a745; /* Background color for accent elements */
         }
         .accent-text {
-            color: #28a745; /* Green text color */
+            color: #28a745; /* Text color for accent elements */
         }
     </style>
 </head>
 <body class="d-flex flex-column" style="min-height: 100vh;">
+    <!-- Navbar section -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
+            <!-- Logo image for the site -->
             <img src="{% static 'images/golf_logo.png' %}" alt="Golf Logo" width="30" height="30" class="d-inline-block align-top">
+            <!-- Navbar toggler for mobile view -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <!-- Navbar links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
+                    <!-- Home link -->
                     <li class="nav-item">
                         <a class="nav-link active accent-text" aria-current="page" href="{% url 'index' %}">Home</a>
                     </li>
+                    <!-- Players link -->
                     <li class="nav-item">
                         <a class="nav-link accent-text" href="{% url 'player-list' %}">Players</a>
                     </li>
+                    <!-- Games link -->
                     <li class="nav-item">
                         <a class="nav-link accent-text" href="{% url 'game-list' %}">Games</a>
                     </li>
                 </ul>
             </div>
             <div class="ml-auto">
+                <!-- Navbar on the right side, for authentication links -->
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
+                        <!-- Display Logout link if user is authenticated -->
                         <li class="nav-item">
                             <a class="nav-link accent-text" href="{% url 'logout' %}">Logout</a>
                         </li>
                     {% else %}
+                        <!-- Display Login link if user is not authenticated -->
                         <li class="nav-item">
                             <a class="nav-link accent-text" href="{% url 'login' %}">Login</a>
                         </li>
@@ -82,15 +92,20 @@
             </div>
         </div>
     </nav>
+    <!-- Main content area -->
     <main role="main" class="flex-shrink-0">
         {% block content %}
+        <!-- This block will be filled with child template content -->
         {% endblock %}
     </main>
+    <!-- Footer section -->
     <footer class="footer mt-auto py-3">
         <div class="container">
+            <!-- Display dynamic content in the footer -->
             <span class="text-muted">{{ chosen_saying }}</span>
         </div>
     </footer>
+    <!-- Load Bootstrap's JavaScript components -->
     {% bootstrap_javascript %}
 </body>
 </html>

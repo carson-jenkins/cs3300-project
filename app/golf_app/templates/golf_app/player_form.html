@@ -1,12 +1,20 @@
-{% extends 'golf_app/base_template.html' %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
 
-{% block content %}
+{% block content %}  <!-- Start of content block that will be inserted into the base template -->
 <div class="container mt-4">
-    <h1 class="mb-4">{% if player.id %}Edit{% else %}New{% endif %} Player</h1>
+    <!-- Conditional title depending on whether it's an edit or new player form -->
+    <h1 class="mb-4">
+        {% if player.id %}
+            Edit  <!-- If player.id exists, it's an edit form -->
+        {% else %}
+            New   <!-- If player.id does not exist, it's a form for a new player -->
+        {% endif %}
+        Player
+    </h1>
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Save</button>
+        {% csrf_token %}  <!-- CSRF token for form security -->
+        {{ form.as_p }}   <!-- Django form fields rendered as paragraph elements -->
+        <button type="submit" class="btn btn-success">Save</button>  <!-- Submit button for the form -->
     </form>
 </div>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->

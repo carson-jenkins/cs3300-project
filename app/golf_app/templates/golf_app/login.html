@@ -1,10 +1,13 @@
-{% extends 'golf_app/base_template.html' %}
-{% block content %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
+
+{% block content %}  <!-- Start of the content block to be inserted into the base template -->
     <h2>Login</h2>
+    <!-- Form for user login -->
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
+        {% csrf_token %}  <!-- CSRF token for form security -->
+        {{ form.as_p }}   <!-- Renders the form fields as paragraph elements -->
+        <button type="submit">Login</button>  <!-- Submit button for the form -->
     </form>
+    <!-- Link to navigate to the registration page for users who don't have an account -->
     <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->

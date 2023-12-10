@@ -1,12 +1,15 @@
-{% extends 'golf_app/base_template.html' %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
 
-{% block content %}
+{% block content %}  <!-- Start of the content block to be inserted into the base template -->
     <h1>Delete Game</h1>
+    <!-- Confirmation message for deleting a game -->
     <p>Are you sure you want to delete "{{ object.course_name }}" on {{ object.date }}?</p>
 
+    <!-- Form for confirming the deletion of a game -->
     <form method="post">
-        {% csrf_token %}
-        <input type="submit" value="Confirm">
+        {% csrf_token %}  <!-- CSRF token for form security -->
+        <input type="submit" value="Confirm">  <!-- Submit button for confirmation -->
+        <!-- Link to cancel the deletion and return to the game list -->
         <a href="{% url 'game-list' %}">Cancel</a>
     </form>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->

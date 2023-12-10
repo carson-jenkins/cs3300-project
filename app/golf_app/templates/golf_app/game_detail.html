@@ -1,33 +1,41 @@
-{% extends 'golf_app/base_template.html' %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
 
-{% block content %}
+{% block content %}  <!-- Start of content block that will be inserted into the base template -->
     <div class="container mt-4">
         <h2 class="mb-3">Game Details</h2>
+        <!-- Card displaying game details -->
         <div class="card mb-4">
             <div class="card-body">
+                <!-- Display course name of the game -->
                 <p class="card-text"><strong>Course Name:</strong> {{ game.course_name }}</p>
+                <!-- Display date of the game -->
                 <p class="card-text"><strong>Date:</strong> {{ game.date }}</p>
             </div>
         </div>
 
         <h3 class="mb-3">Scores:</h3>
+        <!-- Form for submitting scores -->
         <form method="post" class="mb-3">
-            {% csrf_token %}
-            {{ formset.management_form }}
+            {% csrf_token %}  <!-- CSRF token for form security -->
+            {{ formset.management_form }}  <!-- Management form for formset -->
+            <!-- Table for displaying the score formset -->
             <table class="table table-striped">
                 <tbody>
                     {% for form in formset %}
+                        <!-- Looping through each form in the formset -->
                         <tr>
-                            <td>{{ form.player_name.value }}</td>
+                            <td>{{ form.player_name.value }}</td>  <!-- Display player's name -->
                             {% for field in form %}
-                                <td>{{ field }}</td>
+                                <!-- Looping through each field in the form -->
+                                <td>{{ field }}</td>  <!-- Display field -->
                             {% endfor %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <button type="submit" class="btn btn-success">Save Scores</button>
+            <button type="submit" class="btn btn-success">Save Scores</button>  <!-- Submit button for the form -->
         </form>        
+        <!-- Link to navigate back to the game list -->
         <a href="{% url 'game-list' %}" class="btn btn-outline-secondary">Back to Game List</a>
     </div>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->

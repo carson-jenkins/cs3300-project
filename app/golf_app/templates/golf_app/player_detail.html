@@ -1,14 +1,19 @@
-{% extends 'golf_app/base_template.html' %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
 
-{% block content %}
+{% block content %}  <!-- Start of content block that will be inserted into the base template -->
 <div class="container mt-4">
     <h1 class="mb-4">Player Details</h1>
     <ul class="list-group">
+        <!-- Display player's name -->
         <li class="list-group-item"><strong>Name:</strong> {{ player.name }}</li>
+        <!-- Display player's handicap -->
         <li class="list-group-item"><strong>Handicap:</strong> {{ player.handicap }}</li>
+        <!-- Display player's contact email -->
         <li class="list-group-item"><strong>Contact Email:</strong> {{ player.contact_email }}</li>
+        <!-- Display player's bio -->
         <li class="list-group-item"><strong>Bio:</strong> {{ player.bio }}</li>
     </ul>
+    <!-- Link to navigate back to the player list -->
     <a href="{% url 'player-list' %}" class="btn btn-primary mt-3">Back to Player List</a>
 </div>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->

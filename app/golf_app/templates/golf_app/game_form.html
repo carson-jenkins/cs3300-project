@@ -1,35 +1,41 @@
-{% extends 'golf_app/base_template.html' %}
+{% extends 'golf_app/base_template.html' %}  <!-- Extends a base template to inherit its structure -->
 
-{% block content %}
+{% block content %}  <!-- Start of the content block to be inserted into the base template -->
 <div class="container mt-3">
     <h1 class="mb-4">Create New Game</h1>
+    <!-- Form for creating a new game -->
     <form method="post" novalidate>
-        {% csrf_token %}
+        {% csrf_token %}  <!-- CSRF token for form security -->
         <div class="mb-3">
-            {{ form.course_name.label_tag }}
-            {{ form.course_name.errors }}
+            {{ form.course_name.label_tag }}  <!-- Label for course_name field -->
+            {{ form.course_name.errors }}  <!-- Error messages for course_name field -->
+            <!-- Input field for course_name -->
             <input type="text" name="{{ form.course_name.name }}" class="form-control" id="{{ form.course_name.id_for_label }}" value="{{ form.course_name.value|default_if_none:'' }}">
         </div>
         <div class="mb-3">
-            {{ form.date.label_tag }}
-            {{ form.date.errors }}
+            {{ form.date.label_tag }}  <!-- Label for date field -->
+            {{ form.date.errors }}  <!-- Error messages for date field -->
+            <!-- Input field for date -->
             <input type="text" name="{{ form.date.name }}" class="form-control" id="{{ form.date.id_for_label }}" value="{{ form.date.value|default_if_none:'' }}">
         </div>
         <div class="mb-3">
-            {{ form.players.label_tag }}
-            {{ form.players.errors }}
-            {{ form.players }}
+            {{ form.players.label_tag }}  <!-- Label for players field -->
+            {{ form.players.errors }}  <!-- Error messages for players field -->
+            {{ form.players }}  <!-- Input field for players -->
         </div>
+        <!-- Link to create a new player -->
         <div class="mt-4">
             <a href="{% url 'new-player' %}" class="btn btn-primary">Create New Player</a>
         </div>
+        <!-- Submit button for the form -->
         <div class="mt-4">
             <button type="submit" class="btn btn-success">Save Game</button>
         </div>
     </form>
     
+    <!-- Link to navigate back to the game list -->
     <div class="mt-3">
         <a href="{% url 'game-list' %}" class="btn btn-outline-secondary">Back to Game List</a>
     </div>
 </div>
-{% endblock %}
+{% endblock %}  <!-- End of content block -->
